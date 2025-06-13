@@ -7,8 +7,8 @@ const args = minimist(process.argv.slice(2));
 const port = args.port || 3000;
 
 const server = http.createServer((req, res) => {
-  if (req.url === "/" || req.url === "/project.html") {
-    fs.readFile(path.join(__dirname, "project.html"), (err, data) => {
+  if (req.url === "/" || req.url === "/home.html") {
+    fs.readFile(path.join(__dirname, "home.html"), (err, data) => {
       if (err) {
         res.writeHead(500);
         res.end("Server Error");
@@ -35,6 +35,16 @@ const server = http.createServer((req, res) => {
         return;
       }
       res.writeHead(200, { "Content-Type": "application/javascript" });
+      res.end(data);
+    });
+  } else if (req.url === "/project.html") {
+    fs.readFile(path.join(__dirname, "project.html"), (err, data) => {
+      if (err) {
+        res.writeHead(500);
+        res.end("Server Error");
+        return;
+      }
+      res.writeHead(200, { "Content-Type": "text/html" });
       res.end(data);
     });
   } else {
