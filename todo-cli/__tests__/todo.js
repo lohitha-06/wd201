@@ -17,8 +17,8 @@ describe("List the todo items", function () {
     server.close();
   });
 
-  test("responds with json at /todos", async () => {
-    const response = await agent.post("/todos").send({
+  test("responds with json at /todo", async () => {
+    const response = await agent.post("/todo").send({
       title: "Buy milk",
       dueDate: new Date().toISOString(),
       completed: false,
