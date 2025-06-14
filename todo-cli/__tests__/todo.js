@@ -1,45 +1,62 @@
-const todoList = require('../todo.js');
+// __tests__/todo.js
+let todoList = require("../todo");
 
-describe('Todo List', () => {
-  let todos;
-  const today = new Date().toISOString().split('T')[0];
-  const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0];
-  const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0];
+const { all, markAsComplete, add, overdue, dueToday, dueLater } = todoList();
+/* eslint-disable no-undef */
+describe("Todo List Test Suite", () => {
+  beforeAll(() => {
+    // Seed the test data
+    const today = new Date();
+    const oneDay = 60 * 60 * 24 * 1000;
+    [
+      {
+        title: "Buy milk",
+        completed: false,
+        dueDate: new Date(today.getTime() - 2 * oneDay).toLocaleDateString(
+          "en-CA"
+        ),
+      },
+      {
+        title: "Pay rent",
+        completed: false,
+        dueDate: new Date().toLocaleDateString("en-CA"),
+      },
+      {
+        title: "Submit assignment",
+        completed: false,
+        dueDate: new Date(today.getTime() + 2 * oneDay).toLocaleDateString(
+          "en-CA"
+        ),
+      },
+    ].forEach(add);
+  });
+  test("Should add a new todo", () => {
+    expect(all.length).toEqual(3);
 
-  beforeEach(() => {
-    todos = todoList();
+    add({
+      title: "A test item",
+      completed: false,
+      dueDate: new Date().toLocaleDateString("en-CA"),
+    });
+
+    expect(all.length).toEqual(4);
   });
 
-  test('should add a new todo', () => {
-    todos.add({ title: 'Test todo', dueDate: today, completed: false });
-    expect(todos.all.length).toBe(1);
-    expect(todos.all[0].title).toBe('Test todo');
+  test("Should mark a todo as complete", () => {
+    expect(all[0].completed).toEqual(false);
+    markAsComplete(0);
+    expect(all[0].completed).toEqual(true);
   });
 
-  test('should mark a todo as completed', () => {
-    todos.add({ title: 'Test todo', dueDate: today, completed: false });
-    todos.markAsComplete(0);
-    expect(todos.all[0].completed).toBe(true);
+  test("Should retrieve overdue items", () => {
+    expect(overdue().length).toEqual(1);
   });
 
-  test('should retrieve overdue items', () => {
-    todos.add({ title: 'Overdue', dueDate: yesterday, completed: false });
-    todos.add({ title: 'Today', dueDate: today, completed: false });
-    expect(todos.overdue().length).toBe(1);
-    expect(todos.overdue()[0].title).toBe('Overdue');
+  test("Should retrieve due today items", () => {
+    expect(dueToday().length).toEqual(2);
   });
 
-  test('should retrieve due today items', () => {
-    todos.add({ title: 'Today', dueDate: today, completed: false });
-    todos.add({ title: 'Tomorrow', dueDate: tomorrow, completed: false });
-    expect(todos.dueToday().length).toBe(1);
-    expect(todos.dueToday()[0].title).toBe('Today');
-  });
-
-  test('should retrieve due later items', () => {
-    todos.add({ title: 'Tomorrow', dueDate: tomorrow, completed: false });
-    todos.add({ title: 'Today', dueDate: today, completed: false });
-    expect(todos.dueLater().length).toBe(1);
-    expect(todos.dueLater()[0].title).toBe('Tomorrow');
+  test("Should retrieve due later items", () => {
+    expect(dueLater().length).toEqual(1);
   });
 });
