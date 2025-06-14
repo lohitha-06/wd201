@@ -1,58 +1,49 @@
 const http = require("http");
 const fs = require("fs");
-const path = require("path");
-const minimist = require("minimist");
+const args = require("minimist")(process.argv.slice(2));
 
-const args = minimist(process.argv.slice(2));
-const port = args.port || 3000;
+let homeContent = "";
+let projectContent = "";
+let registrationFormContent = "";
 
-const server = http.createServer((req, res) => {
-  if (req.url === "/" || req.url === "/home.html") {
-    fs.readFile(path.join(__dirname, "home.html"), (err, data) => {
-      if (err) {
-        res.writeHead(500);
-        res.end("Server Error");
-        return;
-      }
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(data);
-    });
-  } else if (req.url === "/registration") {
-    fs.readFile(path.join(__dirname, "registration.html"), (err, data) => {
-      if (err) {
-        res.writeHead(500);
-        res.end("Server Error");
-        return;
-      }
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(data);
-    });
-  } else if (req.url === "/registration.js") {
-    fs.readFile(path.join(__dirname, "registration.js"), (err, data) => {
-      if (err) {
-        res.writeHead(404);
-        res.end("Not found");
-        return;
-      }
-      res.writeHead(200, { "Content-Type": "application/javascript" });
-      res.end(data);
-    });
-  } else if (req.url === "/project.html") {
-    fs.readFile(path.join(__dirname, "project.html"), (err, data) => {
-      if (err) {
-        res.writeHead(500);
-        res.end("Server Error");
-        return;
-      }
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(data);
-    });
-  } else {
-    res.writeHead(404);
-    res.end("Not found");
+fs.readFile("home.html", (err, home) => {
+  if (err) {
+    throw err;
   }
+  homeContent = home;
 });
 
-server.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}/`);
+fs.readFile("project.html", (err, project) => {
+  if (err) {
+    throw err;
+  }
+  projectContent = project;
 });
+
+fs.readFile("registration.html", (err, registrationForm) => {
+  if (err) {
+    throw err;
+  }
+  registrationFormContent = registrationForm;
+});
+
+http
+  .createServer(function (request, response) {
+    let url = request.url;
+    response.writeHeader(200, { "Content-Type": "text/html" });
+    switch (url) {
+      case "/project":
+        response.write(projectContent);
+        response.end();
+        break;
+      case "/registration":
+        response.write(registrationFormContent);
+        response.end();
+        break;
+      default:
+        response.write(homeContent);
+        response.end();
+        break;
+    }
+  })
+  .listen(args.port);
